@@ -129,10 +129,10 @@
         <div class="menu-box">
             <h1>Geografie & Koordinaten</h1>
             <div class="mode-buttons">
-                <button class="mode-btn" onclick="startApp('blanko')">Blanko Weltkarte (Ohne Namen) <span>🌍</span></button>
-                <button class="mode-btn" onclick="startApp('schweiz')">Schweiz (Stumme Karte) <span>🇨🇭</span></button>
+                <button class="mode-btn" onclick="startApp('blanko')">Blanko Weltkarte <span>🌍</span></button>
+                <button class="mode-btn" onclick="startApp('schweiz')">Schweiz-Modus <span>🇨🇭</span></button>
                 <button class="mode-btn" onclick="startApp('koordinaten_einfach')">Koordinaten (Einfach - Mit Netz) <span>📍</span></button>
-                <button class="mode-btn" onclick="startApp('koordinaten_profi')" style="border-color: rgba(212,175,55,0.4);">Koordinaten (Expertin - Nur Karte) <span>⚡</span></button>
+                <button class="mode-btn" onclick="startApp('koordinaten_profi')" style="border-color: rgba(212,175,55,0.4);">Koordinaten (Expertin) <span>⚡</span></button>
             </div>
         </div>
     </div>
@@ -164,7 +164,7 @@
 
     <script>
         let map = null, mode = 'blanko', round = 1, maxRounds = 12, score = 0, target = null;
-        let userMarker = null, targetMarker = null, lineObj = null, gridGroup = null, currentTileLayer = null;
+        let userMarker = null, targetMarker = null, lineObj = null, gridGroup = null;
         let selLat = null, selLng = null, active = false;
         let activePool = [];
 
@@ -185,4 +185,180 @@
                 { name: "Paris (Frankreich)", lat: 48.8566, lng: 2.3522 },
                 { name: "Ottawa (Kanada)", lat: 45.4215, lng: -75.6972 },
                 { name: "Bangkok (Thailand)", lat: 13.7563, lng: 100.5018 },
-                { name:
+                { name: "Rom (Italien)", lat: 41.9028, lng: 12.4964 },
+                { name: "Mexico City (Mexiko)", lat: 19.4326, lng: -99.1332 },
+                { name: "Neu-Delhi (Indien)", lat: 28.6139, lng: 77.2090 },
+                { name: "Stockholm (Schweden)", lat: 59.3293, lng: 18.0686 },
+                { name: "Santiago de Chile", lat: -33.4489, lng: -70.6693 }
+            ],
+            schweiz: [
+                { name: "Zürich", lat: 47.3769, lng: 8.5417 },
+                { name: "Genf", lat: 46.2044, lng: 6.1432 },
+                { name: "Bern", lat: 46.9480, lng: 7.4474 },
+                { name: "Basel", lat: 47.5596, lng: 7.5886 },
+                { name: "Lausanne", lat: 46.5197, lng: 6.6323 },
+                { name: "Luzern", lat: 47.0502, lng: 8.3093 },
+                { name: "Lugano", lat: 46.0037, lng: 8.9511 },
+                { name: "St. Gallen", lat: 47.4245, lng: 9.3767 },
+                { name: "Chur", lat: 46.8508, lng: 9.5320 },
+                { name: "Sion (Sitten)", lat: 46.2333, lng: 7.3582 },
+                { name: "Thun", lat: 46.7580, lng: 7.6279 },
+                { name: "Interlaken", lat: 46.6863, lng: 7.8632 },
+                { name: "Zermatt", lat: 46.0207, lng: 7.7491 },
+                { name: "Davos", lat: 46.8012, lng: 9.8328 }
+            ],
+            koordinaten_einfach: [
+                { lat: 40.71, lng: -74.00, name: "New York" }, { lat: 35.67, lng: 139.65, name: "Tokio" },
+                { lat: -33.92, lng: 18.42, name: "Kapstadt" }, { lat: 51.50, lng: -0.12, name: "London" },
+                { lat: 48.85, lng: 2.35, name: "Paris" }, { lat: 30.04, lng: 31.23, name: "Kairo" },
+                { lat: -33.86, lng: 151.20, name: "Sydney" }, { lat: 55.75, lng: 37.61, name: "Moskau" },
+                { lat: 39.90, lng: 116.40, name: "Peking" }, { lat: 19.43, lng: -99.13, name: "Mexico Stadt" }
+            ],
+            koordinaten_profi: [
+                { lat: 40.71, lng: -74.00, name: "New York" }, { lat: 35.67, lng: 139.65, name: "Tokio" },
+                { lat: -33.92, lng: 18.42, name: "Kapstadt" }, { lat: 51.50, lng: -0.12, name: "London" },
+                { lat: 48.85, lng: 2.35, name: "Paris" }, { lat: 30.04, lng: 31.23, name: "Kairo" },
+                { lat: -33.86, lng: 151.20, name: "Sydney" }, { lat: 55.75, lng: 37.61, name: "Moskau" },
+                { lat: 39.90, lng: 116.40, name: "Peking" }, { lat: 19.43, lng: -99.13, name: "Mexico Stadt" }
+            ]
+        };
+
+        function shuffle(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startApp(selectedMode) {
+            mode = selectedMode;
+            round = 1;
+            score = 0;
+            activePool = shuffle(masterData[mode]);
+
+            let screen = document.getElementById('start-screen');
+            if (screen) screen.style.display = 'none';
+
+            let title = 'BLANKO';
+            if (mode === 'schweiz') title = 'SCHWEIZ';
+            if (mode === 'koordinaten_einfach') title = 'KOORDINATEN (EINFACH)';
+            if (mode === 'koordinaten_profi') title = 'KOORDINATEN (EXPERTIN)';
+            document.getElementById('current-mode-label').innerText = title;
+            document.getElementById('total-score').innerText = score;
+
+            if (!map) {
+                map = L.map('map', { zoomControl: false }).setView([20, 0], 2);
+                L.control.zoom({ position: 'bottomright' }).addTo(map);
+                
+                // Der Standard-OSM-Layer, der garantiert immer läuft und lädt
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+                
+                map.on('click', function(e) {
+                    if (!active) return;
+                    selLat = e.latlng.lat;
+                    selLng = e.latlng.lng;
+                    if (userMarker) {
+                        userMarker.setLatLng([selLat, selLng]);
+                    } else {
+                        userMarker = L.circleMarker([selLat, selLng], {
+                            radius: 8, color: '#fff', fillColor: '#d4af37', fillOpacity: 1, weight: 2
+                        }).addTo(map);
+                    }
+                    document.getElementById('action-container').classList.add('visible');
+                });
+            }
+
+            setTimeout(function() {
+                map.invalidateSize();
+                setMapBounds();
+                nextRound();
+            }, 100);
+
+            if (gridGroup) { map.removeLayer(gridGroup); gridGroup = null; }
+            if (mode === 'koordinaten_einfach') {
+                drawFineGrid();
+            }
+        }
+
+        function setMapBounds() {
+            if (mode === 'schweiz') {
+                map.setView([46.8182, 8.2275], 8);
+            } else {
+                map.setView([20, 0], 2);
+            }
+        }
+
+        function drawFineGrid() {
+            gridGroup = L.layerGroup();
+            for (let lat = -80; lat <= 80; lat += 10) {
+                let weight = (lat % 30 === 0) ? 1.5 : 0.8;
+                let opacity = (lat % 30 === 0) ? 0.8 : 0.4;
+                let line = L.polyline([[lat, -180], [lat, 180]], {color: '#d4af37', weight: weight, opacity: opacity, dashArray: '3, 3'});
+                gridGroup.addLayer(line);
+            }
+            for (let lng = -180; lng <= 180; lng += 10) {
+                let weight = (lng % 30 === 0) ? 1.5 : 0.8;
+                let opacity = (lng % 30 === 0) ? 0.8 : 0.4;
+                let line = L.polyline([[-85, lng], [85, lng]], {color: '#d4af37', weight: weight, opacity: opacity, dashArray: '3, 3'});
+                gridGroup.addLayer(line);
+            }
+            gridGroup.addTo(map);
+        }
+
+        function nextRound() {
+            if (round > maxRounds || activePool.length === 0) {
+                alert('Spiel beendet! Gesamtergebnis: ' + score + ' Punkte');
+                location.reload();
+                return;
+            }
+            document.getElementById('current-round').innerText = round + '/' + maxRounds;
+            if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+            if (targetMarker) { map.removeLayer(targetMarker); targetMarker = null; }
+            if (lineObj) { map.removeLayer(lineObj); lineObj = null; }
+            selLat = null; selLng = null;
+            document.getElementById('action-container').classList.remove('visible');
+
+            target = activePool.pop();
+
+            if (mode === 'koordinaten_einfach' || mode === 'koordinaten_profi') {
+                let la = Math.abs(target.lat).toFixed(2) + (target.lat >= 0 ? '° N' : '° S');
+                let lo = Math.abs(target.lng).toFixed(2) + (target.lng >= 0 ? '° E' : '° W');
+                document.getElementById('target-title').innerText = la + ', ' + lo;
+                document.getElementById('target-subtitle').innerText = mode === 'koordinaten_einfach' ? 'Nutze das Koordinatennetz. Pin setzen.' : 'Expertinnen-Modus: Reine Karte ohne Linien.';
+            } else {
+                document.getElementById('target-title').innerText = target.name;
+                document.getElementById('target-subtitle').innerText = 'Finde den Ort auf der Karte.';
+            }
+            active = true;
+        }
+
+        function confirmPin() {
+            if (selLat === null || selLng === null) return;
+            active = false;
+
+            let tLatLng = L.latLng(target.lat, target.lng);
+            let uLatLng = L.latLng(selLat, selLng);
+            let dist = Math.round(tLatLng.distanceTo(uLatLng) / 1000);
+            let pts = Math.max(0, 1000 - dist * 2);
+            score += pts;
+            document.getElementById('total-score').innerText = score;
+
+            targetMarker = L.circleMarker(tLatLng, { radius: 8, color: '#fff', fillColor: '#f85149', fillOpacity: 1, weight: 2 }).addTo(map);
+            lineObj = L.polyline([uLatLng, tLatLng], { color: '#9ba1a6', weight: 2, dashArray: '4, 4' }).addTo(map);
+
+            let displayName = target.name || (Math.abs(target.lat).toFixed(2) + '°, ' + Math.abs(target.lng).toFixed(2) + '°');
+            document.getElementById('target-title').innerText = displayName + ' (' + dist + ' km daneben)';
+            document.getElementById('target-subtitle').innerText = '+' + pts + ' Punkte. Nächste Runde...';
+            document.getElementById('action-container').classList.remove('visible');
+
+            round++;
+            setTimeout(nextRound, 4000);
+        }
+    </script>
+</body>
+</html>
